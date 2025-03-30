@@ -1,0 +1,160 @@
+// 📁 public/style.css
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 500px;
+  margin: 30px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h1, h2 {
+  text-align: center;
+}
+input, select, textarea, button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.hidden {
+  display: none;
+}
+.dashboard {
+  margin-top: 20px;
+}
+.menu-btn {
+  margin: 5px 0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+#adminLoginBtn {
+  background-color: red;
+  color: white;
+}
+
+
+// 📁 public/script.js
+let adminClickCount = 0;
+
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+const adminLoginBtn = document.getElementById("adminLoginBtn");
+const userInterface = document.getElementById("userInterface");
+const userDisplay = document.getElementById("userDisplay");
+const orderForm = document.getElementById("orderForm");
+const orderStatus = document.getElementById("orderStatus");
+const trackParcel = document.getElementById("trackParcel");
+const addRobot = document.getElementById("addRobot");
+
+loginBtn.addEventListener("click", () => {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if (!username && !password) {
+    adminClickCount++;
+    if (adminClickCount >= 5) {
+      adminLoginBtn.classList.remove("hidden");
+    }
+  } else {
+    adminClickCount = 0;
+    alert("Logged in as " + username);
+    userDisplay.textContent = username;
+    document.querySelector(".form-container").classList.add("hidden");
+    userInterface.classList.remove("hidden");
+  }
+});
+
+signupBtn.addEventListener("click", () => {
+  alert("Signup functionality coming soon!");
+});
+
+adminLoginBtn.addEventListener("click", () => {
+  alert("Admin Login Successful");
+});
+
+document.getElementById("submitOrder").addEventListener("click", () => {
+  const product = document.getElementById("product").value;
+  const quantity = document.getElementById("quantity").value;
+  const address = document.getElementById("address").value;
+  orderStatus.innerText = `✅ Order placed: ${quantity} x ${product}\nShipping to: ${address}`;
+  orderStatus.classList.remove("hidden");
+});
+
+function showOrderForm() {
+  orderForm.classList.remove("hidden");
+  trackParcel.classList.add("hidden");
+  addRobot.classList.add("hidden");
+}
+
+function showTrackMenu() {
+  orderForm.classList.add("hidden");
+  trackParcel.classList.remove("hidden");
+  addRobot.classList.add("hidden");
+}
+
+function showAddRobot() {
+  orderForm.classList.add("hidden");
+  trackParcel.classList.add("hidden");
+  addRobot.classList.remove("hidden");
+}
+
+
+// 📁 server/server.js (Node.js backend)
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../public')));
+
+const usersFile = path.join(__dirname, 'users.json');
+const ordersFile = path.join(__dirname, 'orders.json');
+
+// Register User
+app.post('/api/signup', (req, res) => {
+  const { username, password } = req.body;
+  let users = [];
+  if (fs.existsSync(usersFile)) users = JSON.parse(fs.readFileSync(usersFile));
+  if (users.find(u => u.username === username)) {
+    return res.status(409).json({ message: 'Username already exists' });
+  }
+  users.push({ username, password });
+  fs.writeFileSync(usersFile, JSON.stringify(users));
+  res.json({ message: 'User created' });
+});
+
+// Login User
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  if (!fs.existsSync(usersFile)) return res.status(404).json({ message: 'No users found' });
+  const users = JSON.parse(fs.readFileSync(usersFile));
+  const user = users.find(u => u.username === username && u.password === password);
+  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+  res.json({ message: 'Login successful' });
+});
+
+// Submit Order
+app.post('/api/order', (req, res) => {
+  const { username, product, quantity, address } = req.body;
+  let orders = [];
+  if (fs.existsSync(ordersFile)) orders = JSON.parse(fs.readFileSync(ordersFile));
+  orders.push({ username, product, quantity, address, delivered: false });
+  fs.writeFileSync(ordersFile, JSON.stringify(orders));
+  res.json({ message: 'Order placed' });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
