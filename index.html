@@ -1,0 +1,162 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaBot Preorder</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .hidden {
+      display: none;
+    }
+    .dashboard {
+      margin-top: 20px;
+    }
+    .menu-btn {
+      margin: 5px 0;
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+    #adminLoginBtn {
+      background-color: red;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Preorder NovaBot</h1>
+    <div class="form-container">
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+      <button id="signupBtn">Sign Up</button>
+      <button id="adminLoginBtn" class="hidden">Login as Admin</button>
+    </div>
+
+    <div id="userInterface" class="hidden dashboard">
+      <h2>Welcome, <span id="userDisplay"></span></h2>
+      <button class="menu-btn" onclick="showOrderForm()">Preorder</button>
+      <button class="menu-btn" onclick="showTrackMenu()">Track Parcel</button>
+      <button class="menu-btn" onclick="showAddRobot()">Add Your Robot</button>
+    </div>
+
+    <div id="orderForm" class="hidden">
+      <h2>Place Your Order</h2>
+      <select id="product">
+        <option value="NovaBot">NovaBot</option>
+        <option value="LexoBot">LexoBot (Gift)</option>
+      </select>
+      <input type="number" id="quantity" placeholder="Quantity" />
+      <textarea id="address" placeholder="Shipping Address"></textarea>
+      <button id="submitOrder">Submit Order</button>
+    </div>
+
+    <div id="orderStatus" class="hidden"></div>
+
+    <div id="trackParcel" class="hidden">
+      <h2>Your Parcels</h2>
+      <p>✅ NovaBot - Delivered</p>
+      <p>🕒 LexoBot - On the Way</p>
+    </div>
+
+    <div id="addRobot" class="hidden">
+      <h2>Add Your Robot</h2>
+      <input type="text" placeholder="Enter code from manual" />
+      <button onclick="alert('Robot added!')">Add Robot</button>
+    </div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const adminLoginBtn = document.getElementById("adminLoginBtn");
+    const userInterface = document.getElementById("userInterface");
+    const userDisplay = document.getElementById("userDisplay");
+    const orderForm = document.getElementById("orderForm");
+    const orderStatus = document.getElementById("orderStatus");
+    const trackParcel = document.getElementById("trackParcel");
+    const addRobot = document.getElementById("addRobot");
+
+    let adminClickCount = 0;
+
+    loginBtn.addEventListener("click", () => {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      if (!username && !password) {
+        adminClickCount++;
+        if (adminClickCount >= 5) {
+          adminLoginBtn.classList.remove("hidden");
+        }
+      } else {
+        adminClickCount = 0;
+        alert("Logged in as " + username);
+        userDisplay.textContent = username;
+        document.querySelector(".form-container").classList.add("hidden");
+        userInterface.classList.remove("hidden");
+      }
+    });
+
+    signupBtn.addEventListener("click", () => {
+      alert("Signup functionality coming soon!");
+    });
+
+    adminLoginBtn.addEventListener("click", () => {
+      alert("Admin Login Successful");
+    });
+
+    document.getElementById("submitOrder").addEventListener("click", () => {
+      const product = document.getElementById("product").value;
+      const quantity = document.getElementById("quantity").value;
+      const address = document.getElementById("address").value;
+      orderStatus.innerText = `✅ Order placed: ${quantity} x ${product}\nShipping to: ${address}`;
+      orderStatus.classList.remove("hidden");
+    });
+
+    function showOrderForm() {
+      orderForm.classList.remove("hidden");
+      trackParcel.classList.add("hidden");
+      addRobot.classList.add("hidden");
+    }
+
+    function showTrackMenu() {
+      orderForm.classList.add("hidden");
+      trackParcel.classList.remove("hidden");
+      addRobot.classList.add("hidden");
+    }
+
+    function showAddRobot() {
+      orderForm.classList.add("hidden");
+      trackParcel.classList.add("hidden");
+      addRobot.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
